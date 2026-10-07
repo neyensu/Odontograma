@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>48 Círculos — Editor</title>
+<style>
+:root{
+  --bg:#0b0b0d;
+  --panel:#151519;
+  --panel2:#1d1d22;
+  --line:#303038;
+  --text:#f4f4f5;
+  --muted:#96969f;
+  --accent:#ffffff;
+  --danger:#ff5555;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at 50% 0%,#19191e 0,#0b0b0d 45%,#070708 100%);
+  color:var(--text);
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+header{
+  position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(16px);
+  background:rgba(11,11,13,.82);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.top{
+  max-width:1450px;margin:auto;padding:18px 24px;
+  display:flex;gap:18px;align-items:center;justify-content:space-between;
+}
+.brand h1{font-size:20px;margin:0 0 3px}
+.brand p{margin:0;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line);background:var(--panel2);color:var(--text);
+  border-radius:10px;padding:9px 13px;transition:.18s;
+}
+.btn:hover{background:#28282f;border-color:#484852}
+.btn.primary{background:#f5f5f5;color:#09090a;border-color:#fff}
+.btn.danger{color:#ff7b7b}
+.controls{
+  max-width:1450px;margin:auto;padding:14px 24px 0;
+  display:flex;gap:10px;align-items:center;
+}
+.search{
+  width:280px;max-width:100%;padding:10px 12px;border-radius:10px;
+  border:1px solid var(--line);background:#111115;color:white;outline:none;
+  display: none;
+}
+.search:focus{border-color:#666}
+.counter{color:var(--muted);font-size:12px;margin-left:auto}
+.odontogram{
+  max-width:1450px;
+  margin:0 auto;
+  padding:34px 24px 70px;
+}
+.arch{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:clamp(5px, .8vw, 14px);
+  min-height:145px;
+}
+.arch .half{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(5px, .8vw, 14px);
+}
+.arch .half.left{
+  padding-right:clamp(10px, 1.2vw, 22px);
+}
+.arch .half.right{
+  padding-left:clamp(10px, 1.2vw, 22px);
+  border-left:1px solid rgba(255,255,255,.28);
+}
+.arch.top{
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:32px;
+}
+.arch.bottom{
+  padding-top:32px;
+}
+.arch-label{
+  position:absolute;
+  left:0;
+  top:10%;
+  width:100%;
+  text-align:center;
+  color:#55555e;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+.top .arch-label{top:2px}
+.bottom .arch-label{bottom:2px}
+
+.node{
+  flex:0 0 clamp(42px,4.4vw,70px);
+  width:clamp(42px,4.4vw,70px);
+  height:clamp(42px,4.4vw,70px);
+  aspect-ratio:1;
+  position:relative;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.22);
+  background:#050505;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 8px 25px rgba(0,0,0,.35);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  transition:transform .18s,box-shadow .18s,border-color .18s;
+  overflow:hidden;
+  padding:7px;
+}
+
+.node.circle-blue{
+  border-color:#4d8dff !important;
+  box-shadow:inset 0 0 0 2px rgba(77,141,255,.45),0 8px 25px rgba(0,0,0,.35);
+}
+.node.circle-red{
+  border-color:#ff5252 !important;
+  box-shadow:inset 0 0 0 2px rgba(255,82,82,.45),0 8px 25px rgba(0,0,0,.35);
+}
+.tooth-surface .zone.section-blue{
+  background:#4d8dff !important;
+  box-shadow:none;
+}
+.tooth-surface .zone.section-red{
+  background:#ff5252 !important;
+  box-shadow:none;
+}
+.tooth-surface .zone.section-combo{
+  background:#ff5252 !important;
+  box-shadow:inset 0 0 0 2px #4d8dff;
+}
+.tooth-surface .center.section-blue{
+  background:#4d8dff !important;
+  border-color:#4d8dff;
+}
+.tooth-surface .center.section-red{
+  background:#ff5252 !important;
+  border-color:#ff5252;
+}
+.tooth-surface .center.section-combo{
+  background:#ff5252 !important;
+  border-color:#4d8dff;
+  box-shadow:inset 0 0 0 1px #4d8dff;
+}
+.node:hover{
+  transform:translateY(-4px) scale(1.08);
+  border-color:rgba(255,255,255,.7);
+  box-shadow:0 12px 35px rgba(0,0,0,.55);
+  z-index:3;
+}
+.node .num{
+  position:absolute;top:11%;left:0;right:0;
+  font-size:8px;color:#8d8d95;letter-spacing:1px;
+}
+.node .title{
+  position:absolute;
+  top:50%;
+  max-width:76%;
+  font-size:0;
+  overflow:hidden;text-overflow:ellipsis;
+  pointer-events:none;
+}
+.node .items{
+  position:absolute;bottom:8%;font-size:7px;color:#999;z-index:8;
+}
+.tooth-surface{
+  position:absolute;
+  inset:9%;
+  border:1.5px solid rgba(255,255,255,.72);
+  border-radius:50%;
+  overflow:hidden;
+  background:#050505;
+  z-index:2;
+}
+.tooth-surface .zone{
+  position:absolute;
+  width:50%;
+  height:50%;
+  border:0;
+  padding:0;
+  margin:0;
+  background:#050505;
+  transition:.12s;
+}
+.tooth-surface .zone:hover{background:#29292d}
+.tooth-surface .zone.marked{
+  background:#f4f4f4;
+}
+.tooth-surface .zone.marked:hover{background:#d8d8d8}
+.zone.q1{left:0;top:0;border-right:1px solid rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.65);border-radius:100% 0 0 0}
+.zone.q2{right:0;top:0;border-left:1px solid rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.65);border-radius:0 100% 0 0}
+.zone.q3{left:0;bottom:0;border-right:1px solid rgba(255,255,255,.65);border-top:1px solid rgba(255,255,255,.65);border-radius:0 0 0 100%}
+.zone.q4{right:0;bottom:0;border-left:1px solid rgba(255,255,255,.65);border-top:1px solid rgba(255,255,255,.65);border-radius:0 0 100% 0}
+.tooth-surface .center{
+  position:absolute;
+  left:31%;top:31%;
+  width:38%;height:38%;
+  border:1.5px solid rgba(255,255,255,.8);
+  border-radius:50%;
+  background:#050505;
+  z-index:3;
+  padding:0;
+}
+.tooth-surface .center:hover{background:#29292d}
+.tooth-surface .center.marked{background:#f4f4f4}
+.node .num{z-index:7;pointer-events:none}
+.node .title{z-index:7;pointer-events:none}
+.node .items{pointer-events:none}
+.node-wrap{
+  position:relative;position:relative;flex:0 0 clamp(42px,4.4vw,70px);width:clamp(42px,4.4vw,70px);padding-bottom:30px;display:flex;justify-content:center}
+.node-wrap .node{flex:none}
+.tooth-labels{position:absolute;bottom:0;left:50%;transform:translateX(-50%);display:flex;gap:2px;white-space:nowrap;z-index:10}
+.label-btn{border:0;background:transparent;color:#666;font-size:8px;font-weight:800;padding:1px 2px;cursor:pointer;border-radius:3px}
+.label-btn:hover{color:#fff;background:#25252a}
+.label-btn.selected.blue{color:#4d8dff;text-shadow:0 0 7px rgba(77,141,255,.35)}
+.label-btn.selected.red{color:#ff5252;text-shadow:0 0 7px rgba(255,82,82,.35)}
+
+.node.has-data{border-color:rgba(255,255,255,.5)}
+.node.dim{opacity:.15}
+
+.center-gap{
+  height:18px;
+  position:relative;
+}
+.center-gap:after{
+  content:"";
+  position:absolute;
+  left:12%;right:12%;top:50%;
+  border-top:1px dashed rgba(255,255,255,.06);
+}
+
+@media(max-width:900px){
+  .odontogram{padding:25px 10px 50px}
+  .arch{gap:4px;min-height:115px}
+  .node{flex-basis:clamp(29px,6vw,55px);width:clamp(29px,6vw,55px);height:clamp(29px,6vw,55px);padding:4px}
+  .node .title{font-size:7px}
+  .node .num{font-size:6px}
+  .node .items{font-size:5px}
+}
+@media(max-width:600px){
+  .odontogram{overflow-x:auto}
+  .arch{min-width:760px;justify-content:center}
+  .arch .half{gap:5px}
+}
+.node{
+  aspect-ratio:1;
+  position:relative;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.22);
+  background:#050505;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 8px 25px rgba(0,0,0,.35);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  transition:transform .18s,box-shadow .18s,border-color .18s;
+  overflow:hidden;
+  padding:12px;
+}
+
+.node.circle-blue{
+  border-color:#4d8dff !important;
+  box-shadow:inset 0 0 0 2px rgba(77,141,255,.45),0 8px 25px rgba(0,0,0,.35);
+}
+.node.circle-red{
+  border-color:#ff5252 !important;
+  box-shadow:inset 0 0 0 2px rgba(255,82,82,.45),0 8px 25px rgba(0,0,0,.35);
+}
+.tooth-surface .zone.section-blue{
+  background:#4d8dff !important;
+  box-shadow:none;
+}
+.tooth-surface .zone.section-red{
+  background:#ff5252 !important;
+  box-shadow:none;
+}
+.tooth-surface .zone.section-combo{
+  background:#ff5252 !important;
+  box-shadow:inset 0 0 0 2px #4d8dff;
+}
+.tooth-surface .center.section-blue{
+  background:#4d8dff !important;
+  border-color:#4d8dff;
+}
+.tooth-surface .center.section-red{
+  background:#ff5252 !important;
+  border-color:#ff5252;
+}
+.tooth-surface .center.section-combo{
+  background:#ff5252 !important;
+  border-color:#4d8dff;
+  box-shadow:inset 0 0 0 1px #4d8dff;
+}
+.node:hover{
+  transform:translateY(-4px) scale(1.035);
+  border-color:rgba(255,255,255,.7);
+  box-shadow:0 12px 35px rgba(0,0,0,.55);
+}
+.node .num{
+  position:absolute;top:13%;left:0;right:0;
+  font-size:10px;color:#8d8d95;letter-spacing:1px;
+}
+.node .title{
+  max-width:80%;font-size:13px;font-weight:700;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.node .items{
+  position:absolute;bottom:12%;font-size:9px;color:#999;
+}
+.node.has-data{border-color:rgba(255,255,255,.5)}
+.node.dim{opacity:.15}
+.empty{
+  max-width:1450px;margin:40px auto;padding:40px;text-align:center;color:var(--muted);
+}
+
+/* modal */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(7px);
+  align-items:center;justify-content:center;padding:18px;
+}
+.overlay.open{display:flex}
+.modal{
+  width:min(720px,100%);max-height:92vh;overflow:auto;
+  background:#121216;border:1px solid #34343c;border-radius:18px;
+  box-shadow:0 30px 100px rgba(0,0,0,.7);
+}
+.modal-head{
+  position:sticky;top:0;z-index:2;background:rgba(18,18,22,.94);
+  backdrop-filter:blur(12px);padding:18px 20px;border-bottom:1px solid #2a2a31;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-head h2{margin:0;font-size:18px}
+.close{
+  width:34px;height:34px;border-radius:9px;border:1px solid #36363d;
+  background:#202026;color:#fff;font-size:20px;
+}
+.form{padding:20px;display:grid;gap:15px}
+label{display:grid;gap:7px;font-size:12px;color:#aaa}
+input,textarea,select{
+  width:100%;background:#0c0c0f;border:1px solid #303038;color:#fff;
+  border-radius:10px;padding:11px 12px;outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:#686873}
+textarea{min-height:100px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 130px;gap:12px}
+.color-row{display:flex;gap:10px;align-items:center}
+input[type=color]{padding:3px;width:48px;height:38px}
+.items-head{display:flex;justify-content:space-between;align-items:center}
+.items-list{display:grid;gap:8px}
+.item{
+  display:grid;grid-template-columns:1fr auto;gap:8px;
+  padding:9px;background:#19191e;border:1px solid #292930;border-radius:10px;
+}
+.item button{border:0;background:transparent;color:#ff7373;padding:5px}
+.add-item{
+  display:grid;grid-template-columns:1fr 110px auto;gap:8px;
+}
+.modal-foot{
+  padding:16px 20px;border-top:1px solid #2a2a31;
+  display:flex;justify-content:space-between;gap:10px;
+}
+.hint{font-size:11px;color:#777;line-height:1.5}
+@media(max-width:1100px){
+  .grid{grid-template-columns:repeat(6,minmax(70px,1fr));gap:20px}
+}
+@media(max-width:760px){
+  .grid{grid-template-columns:repeat(4,minmax(65px,1fr));gap:14px;padding:20px 14px 50px}
+  .top{padding:15px}
+  .controls{padding:12px 15px 0}
+  .row,.add-item{grid-template-columns:1fr}
+  .counter{display:none}
+}
+@media(max-width:430px){
+  .grid{grid-template-columns:repeat(3,minmax(70px,1fr));gap:12px}
+  .node .title{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div class="brand">
+      <h1>ODONTOGRAMA</h1>
+   
+    </div>
+    <div class="actions">
+      <button class="btn" id="exportBtn">Exportar</button>
+      <button class="btn" id="importBtn">Importar</button>
+      <input id="fileInput" type="file" accept=".json" hidden>
+      <button class="btn danger" id="resetBtn">Restablecer</button>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <input class="search" id="search" placeholder="Buscar pieza, nombre o información...">
+  <span class="counter" id="counter">32 piezas</span>
+</div>
+
+
+<main class="odontogram">
+  <section class="arch top" id="topArch">
+    <span class="arch-label">Arcada superior</span>
+  </section>
+  <div class="center-gap"></div>
+  
+  <section class="arch bottom" id="bottomArch">
+    <span class="arch-label">Arcada inferior</span>
+  </section>
+</main>
+
+
+<div class="overlay" id="overlay">
+  <section class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="modalTitle">Editar círculo</h2>
+      <button class="close" id="closeBtn">×</button>
+    </div>
+
+    <div class="form">
+      <div class="row">
+        <label>
+          Nombre / título
+          <input id="titleInput" maxlength="60" placeholder="Ej: Proyecto, Persona, Lugar...">
+        </label>
+        <label>
+          Estado
+          <select id="statusInput">
+            <option value="normal">Normal</option>
+            <option value="active">Activo</option>
+            <option value="done">Completado</option>
+            <option value="blocked">Bloqueado</option>
+          </select>
+        </label>
+      </div>
+
+      <label>
+        Información
+        <textarea id="descriptionInput" placeholder="Escribí toda la información que quieras guardar en este círculo..."></textarea>
+      </label>
+
+      <label>
+        Color del círculo
+        <span class="color-row">
+          <input id="colorInput" type="color" value="#050505">
+          <span id="colorText">#050505</span>
+        </span>
+      </label>
+
+      <div>
+        <div class="items-head">
+          <label style="display:block">Elementos agregados</label>
+          <span class="hint" id="itemCount">0 elementos</span>
+        </div>
+        <div class="items-list" id="itemsList"></div>
+      </div>
+
+      <div>
+        <div class="hint" style="margin-bottom:7px">Círculo: clic → azul → rojo → quitar. Cuadrantes/centro: clic → azul → rojo → borde azul + interior rojo → quitar. Doble clic en el círculo para editar.</div>
+        <div class="hint" style="margin-bottom:7px">Agregar algo al círculo</div>
+        <div class="add-item">
+          <input id="newItemText" placeholder="Ej: enlace, tarea, nota, persona...">
+          <select id="newItemType">
+            <option value="Nota">Nota</option>
+            <option value="Tarea">Tarea</option>
+            <option value="Enlace">Enlace</option>
+            <option value="Etiqueta">Etiqueta</option>
+            <option value="Otro">Otro</option>
+          </select>
+          <button class="btn" id="addItemBtn">Agregar</button>
+        </div>
+      </div>
+
+      <div class="hint">
+        Los cambios se guardan automáticamente en este navegador. Podés exportar todo a un archivo
+        JSON para guardar una copia y luego importarla.
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn danger" id="deleteDataBtn">Vaciar círculo</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="cancelBtn">Cancelar</button>
+        <button class="btn primary" id="saveBtn">Guardar cambios</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STORAGE_KEY = "editor-48-circulos-clean-v1";
+let data = null;
+try{
+  const saved=localStorage.getItem(STORAGE_KEY);
+  data=saved ? JSON.parse(saved) : null;
+}catch(err){
+  console.warn("Datos guardados inválidos; se restaurarán las piezas.",err);
+  data=null;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(_){}
+}
+let current = null;
+
+const FDI_TEETH=[
+  18,17,16,15,14,13,12,11,
+  21,22,23,24,25,26,27,28,
+  48,47,46,45,44,43,42,41,
+  31,32,33,34,35,36,37,38
+];
+
+function initialData(){
+  return FDI_TEETH.map(id=>({
+    id,title:"",description:"",color:"#050505",status:"normal",items:[],marks:{q1:{marked:false,color:"#f4f4f4"},q2:{marked:false,color:"#f4f4f4"},q3:{marked:false,color:"#f4f4f4"},q4:{marked:false,color:"#f4f4f4"},center:{marked:false,color:"#f4f4f4"}},label:{value:null,color:"blue"},circleColor:null
+  }));
+}
+
+function normalizeData(value){
+  if(!Array.isArray(value)) return initialData();
+
+  const map=new Map(
+    value
+      .filter(x=>x && x.id!=null)
+      .map(x=>[Number(x.id),x])
+  );
+
+  return FDI_TEETH.map(id=>{
+    const item=map.get(id) || {
+      id,
+      title:"",
+      description:"",
+      color:"#050505",
+      status:"normal",
+      items:[],
+      marks:{
+        q1:{marked:false,color:"#f4f4f4"},
+        q2:{marked:false,color:"#f4f4f4"},
+        q3:{marked:false,color:"#f4f4f4"},
+        q4:{marked:false,color:"#f4f4f4"},
+        center:{marked:false,color:"#f4f4f4"}
+      },
+      label:{value:null,color:"blue"},
+      circleColor:null
+    };
+
+    item.id=id;
+    if(typeof item.title!=="string") item.title="";
+    if(typeof item.description!=="string") item.description="";
+    if(typeof item.color!=="string") item.color="#050505";
+    if(typeof item.status!=="string") item.status="normal";
+    if(!Array.isArray(item.items)) item.items=[];
+
+    ensureMarks(item);
+    return item;
+  });
+}
+
+data=normalizeData(data);
+
+const $ = id => document.getElementById(id);
+const grid=$("grid");
+
+function saveStorage(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  }catch(err){
+    console.warn("No se pudo guardar en localStorage.",err);
+  }
+}
+
+function escapeHTML(str){
+  return String(str ?? "").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function ensureMarks(item){
+  if(!item.marks || typeof item.marks!=="object") item.marks={};
+
+  ["q1","q2","q3","q4","center"].forEach(k=>{
+    if(!item.marks[k] || typeof item.marks[k]!=="object"){
+      item.marks[k]={marked:false,color:"#f4f4f4"};
+    }
+    if(typeof item.marks[k].marked !== "boolean") item.marks[k].marked=false;
+    if(typeof item.marks[k].color !== "string") item.marks[k].color="#f4f4f4";
+  });
+
+  if(!item.label || typeof item.label!=="object"){
+    item.label={value:null,color:"blue"};
+  }
+  if(!("circleColor" in item)) item.circleColor=null;
+
+  if(!["A","TC","RR"].includes(item.label.value)) item.label.value=null;
+  if(!["blue","red"].includes(item.label.color)) item.label.color="blue";
+}
+
+function makeNode(item,index){
+  ensureMarks(item);
+  const wrap=document.createElement("div");
+  wrap.className="node-wrap";
+  const b=document.createElement("button");
+  b.className="node"+(item.circleColor==="blue"?" circle-blue":item.circleColor==="red"?" circle-red":"")+(item.title||item.description||item.items.length||Object.values(item.marks).some(x=>x.marked)?" has-data":"");
+  b.style.background=item.color||"#050505";
+  b.style.borderColor=item.status==="done"?"#55d88a":item.status==="active"?"#fff":item.status==="blocked"?"#ff5555":"rgba(255,255,255,.22)";
+  b.title=item.title||`Pieza #${String(item.id).padStart(2,"0")}`;
+
+  const surface=document.createElement("span");
+  surface.className="tooth-surface";
+  ["q1","q2","q3","q4"].forEach(k=>{
+    const z=document.createElement("span");
+    const m=item.marks[k];
+    z.className=`zone ${k}`;
+    if(m.marked){
+      z.classList.add(m.color==="#4d8dff"?"section-blue":m.color==="#ff5252"?"section-red":"section-combo");
+    }
+    z.onclick=e=>{
+      e.stopPropagation();
+      const m=item.marks[k];
+      if(!m.marked){
+        m.marked=true;
+        m.color="#4d8dff";
+      }else if(m.color==="#4d8dff"){
+        m.color="#ff5252";
+      }else if(m.color==="#ff5252"){
+        m.color="#combo";
+      }else{
+        m.marked=false;
+        m.color="#f4f4f4";
+      }
+      saveStorage();render();
+    };
+    surface.appendChild(z);
+  });
+  const c=document.createElement("span");
+  const cm=item.marks.center;
+  c.className="center";
+  if(cm.marked)c.classList.add(cm.color==="#4d8dff"?"section-blue":cm.color==="#ff5252"?"section-red":"section-combo");
+  c.onclick=e=>{
+    e.stopPropagation();
+    const m=item.marks.center;
+    if(!m.marked){
+      m.marked=true;
+      m.color="#4d8dff";
+    }else if(m.color==="#4d8dff"){
+      m.color="#ff5252";
+    }else if(m.color==="#ff5252"){
+      m.color="#combo";
+    }else{
+      m.marked=false;
+      m.color="#f4f4f4";
+    }
+    saveStorage();render();
+  };
+  surface.appendChild(c); b.appendChild(surface);
+
+  const num=document.createElement("span");
+  num.className="num";
+  num.textContent=`#${String(item.id).padStart(2,"0")}`;
+  b.appendChild(num);
+  b.addEventListener("click",e=>{
+    if(e.target.closest(".tooth-surface")) return;
+    if(item.circleColor===null) item.circleColor="blue";
+    else if(item.circleColor==="blue") item.circleColor="red";
+    else item.circleColor=null;
+    saveStorage();render();
+  });
+  b.addEventListener("dblclick",e=>{
+    if(e.target.closest(".tooth-surface")) return;
+    e.stopPropagation();
+    openEditor(index);
+  });
+  wrap.appendChild(b);
+
+  const labels=document.createElement("div");labels.className="tooth-labels";
+  ["A","TC","RR"].forEach(v=>{
+    const x=document.createElement("button");x.type="button";x.className="label-btn"+(item.label.value===v?" selected "+item.label.color:"");x.textContent=v;
+    x.onclick=e=>{
+      e.stopPropagation();
+      if(item.label.value!==v){
+        item.label.value=v;
+        item.label.color="blue";
+      }else if(item.label.color==="blue"){
+        item.label.color="red";
+      }else{
+        item.label.value=null;
+        item.label.color="blue";
+      }
+      saveStorage();render();
+    };
+    labels.appendChild(x);
+  });
+  wrap.appendChild(labels);
+  return wrap;
+}
+function render(){
+  const q=$("search").value.trim().toLowerCase();
+  $("topArch").querySelectorAll(".half").forEach(x=>x.remove());
+  $("bottomArch").querySelectorAll(".half").forEach(x=>x.remove());
+
+  const byId = new Map(data.map((item,index)=>[item.id,{item,index}]));
+  let shown=0;
+
+  const makeHalf = (ids) => {
+    const half=document.createElement("div");
+    half.className="half "+(ids[0] > ids[ids.length-1] ? "left":"right");
+
+    ids.forEach(id=>{
+      const found=byId.get(id);
+      if(!found)return;
+      const {item,index}=found;
+
+      const text=(item.title+" "+item.description+" "+item.items.map(x=>x.text).join(" ")).toLowerCase();
+      const match=!q || text.includes(q) || String(item.id).includes(q);
+      if(match) shown++;
+
+      const node=makeNode(item,index);
+      if(!match) node.classList.add("dim");
+      half.appendChild(node);
+    });
+
+    return half;
+  };
+
+  // FDI / two-digit dental notation:
+  // Upper: 18 17 16 15 14 13 12 11 | 21 22 23 24 25 26 27 28
+  // Lower: 48 47 46 45 44 43 42 41 | 31 32 33 34 35 36 37 38
+  $("topArch").appendChild(makeHalf([18,17,16,15,14,13,12,11]));
+  $("topArch").appendChild(makeHalf([21,22,23,24,25,26,27,28]));
+
+  $("bottomArch").appendChild(makeHalf([48,47,46,45,44,43,42,41]));
+  $("bottomArch").appendChild(makeHalf([31,32,33,34,35,36,37,38]));
+
+  $("counter").textContent=`${shown} de 32 piezas`;
+}
+
+function openEditor(index){
+  current=index;
+  const item=data[index];
+  $("modalTitle").textContent=`Editar círculo #${String(item.id).padStart(2,"0")}`;
+  $("titleInput").value=item.title;
+  $("descriptionInput").value=item.description;
+  $("colorInput").value=item.color || "#050505";
+  $("colorText").textContent=item.color || "#050505";
+  $("statusInput").value=item.status || "normal";
+  $("newItemText").value="";
+  renderItems();
+  $("overlay").classList.add("open");
+  setTimeout(()=>$("titleInput").focus(),50);
+}
+
+function closeEditor(){
+  current=null;
+  $("overlay").classList.remove("open");
+}
+
+function renderItems(){
+  const item=data[current];
+  $("itemCount").textContent=`${item.items.length} elemento${item.items.length===1?"":"s"}`;
+  $("itemsList").innerHTML="";
+  item.items.forEach((x,i)=>{
+    const row=document.createElement("div");
+    row.className="item";
+    row.innerHTML=`<div><strong style="font-size:11px">${escapeHTML(x.type)}</strong><br>
+      <span style="font-size:12px;color:#ccc">${escapeHTML(x.text)}</span></div>
+      <button title="Eliminar">✕</button>`;
+    row.querySelector("button").onclick=()=>{
+      item.items.splice(i,1);
+      renderItems();
+      saveStorage();
+      render();
+    };
+    $("itemsList").appendChild(row);
+  });
+}
+
+function saveCurrent(){
+  if(current===null)return;
+  const item=data[current];
+  item.title=$("titleInput").value.trim();
+  item.description=$("descriptionInput").value.trim();
+  item.color=$("colorInput").value;
+  item.status=$("statusInput").value;
+  saveStorage();render();closeEditor();
+}
+
+$("saveBtn").onclick=saveCurrent;
+$("cancelBtn").onclick=closeEditor;
+$("closeBtn").onclick=closeEditor;
+$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeEditor()});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")closeEditor();
+  if((e.ctrlKey||e.metaKey)&&e.key==="s"){e.preventDefault();saveCurrent();}
+});
+
+$("colorInput").addEventListener("input",e=>$("colorText").textContent=e.target.value);
+
+$("addItemBtn").onclick=()=>{
+  const text=$("newItemText").value.trim();
+  if(!text || current===null)return;
+  data[current].items.push({text,type:$("newItemType").value});
+  $("newItemText").value="";
+  renderItems();saveStorage();render();
+};
+$("newItemText").addEventListener("keydown",e=>{
+  if(e.key==="Enter")$("addItemBtn").click();
+});
+
+$("deleteDataBtn").onclick=()=>{
+  if(current===null)return;
+  if(confirm("¿Vaciar toda la información de este círculo?")){
+    data[current]={id:data[current].id,title:"",description:"",color:"#050505",status:"normal",items:[],marks:{q1:{marked:false,color:"#f4f4f4"},q2:{marked:false,color:"#f4f4f4"},q3:{marked:false,color:"#f4f4f4"},q4:{marked:false,color:"#f4f4f4"},center:{marked:false,color:"#f4f4f4"}},label:{value:null,color:"blue"},marks:{q1:{marked:false,color:"#f4f4f4"},q2:{marked:false,color:"#f4f4f4"},q3:{marked:false,color:"#f4f4f4"},q4:{marked:false,color:"#f4f4f4"},center:{marked:false,color:"#f4f4f4"}},label:{value:null,color:"blue"}};
+    saveStorage();render();openEditor(current);
+  }
+};
+
+$("search").addEventListener("input",render);
+
+$("resetBtn").onclick=()=>{
+  if(confirm("Esto va a borrar la información de las 32 piezas dentales. ¿Continuar?")){
+    data=initialData();saveStorage();render();
+  }
+};
+
+$("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="48-circulos-backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+$("importBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=async e=>{
+  const file=e.target.files[0]; if(!file)return;
+  try{
+    const imported=JSON.parse(await file.text());
+    if(!Array.isArray(imported))throw new Error();
+    data=normalizeData(imported);saveStorage();render();alert("Datos importados correctamente.");
+  }catch{
+    alert("El archivo no tiene un formato válido para esta página.");
+  }
+  e.target.value="";
+};
+
+render();
+</script>
+</body>
+</html>
