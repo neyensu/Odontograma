@@ -58,7 +58,7 @@ header{
 .odontogram{
   max-width:1450px;
   margin:0 auto;
-  padding:34px 24px 70px;
+  padding:34px 24px 20px;
 }
 .arch{
   position:relative;
@@ -91,13 +91,13 @@ header{
 .arch-label{
   position:absolute;
   left:0;
+  top:10%;
   width:100%;
   text-align:center;
   color:#55555e;
   font-size:10px;
   letter-spacing:3px;
   text-transform:uppercase;
-  top:10%;
 }
 .top .arch-label{top:2px}
 .bottom .arch-label{bottom:2px}
@@ -240,85 +240,96 @@ header{
   border-top:1px dashed rgba(255,255,255,.06);
 }
 
+/* Sección de información adicional abajo */
+.extra-section {
+  max-width:1450px;
+  margin: 10px auto 60px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.radio-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.radio-card label.title-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: .5px;
+}
+.radio-options {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.radio-options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+}
+.radio-options input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4d8dff;
+  cursor: pointer;
+}
+.desc-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.desc-card label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: .5px;
+}
+.desc-card textarea {
+  width: 100%;
+  min-height: 110px;
+  background: #0b0b0e;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px;
+  outline: none;
+  font-size: 13px;
+  resize: vertical;
+}
+.desc-card textarea:focus {
+  border-color: #666;
+}
+
 @media(max-width:900px){
-  .odontogram{padding:25px 10px 50px}
+  .odontogram{padding:25px 10px 20px}
   .arch{gap:4px;min-height:115px}
   .node{flex-basis:clamp(29px,6vw,55px);width:clamp(29px,6vw,55px);height:clamp(29px,6vw,55px);padding:4px}
   .node .title{font-size:7px}
   .node .num{font-size:6px}
   .node .items{font-size:5px}
+  .extra-section {padding: 0 10px;}
 }
 @media(max-width:600px){
   .odontogram{overflow-x:auto}
   .arch{min-width:760px;justify-content:center}
   .arch .half{gap:5px}
 }
-.node{
-  aspect-ratio:1;
-  position:relative;
-  border-radius:50%;
-  border:2px solid rgba(255,255,255,.22);
-  background:#050505;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 8px 25px rgba(0,0,0,.35);
-  color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  text-align:center;
-  transition:transform .18s,box-shadow .18s,border-color .18s;
-  overflow:hidden;
-  padding:12px;
-}
 
-.node.circle-blue{
-  border-color:#4d8dff !important;
-  box-shadow:inset 0 0 0 2px rgba(77,141,255,.45),0 8px 25px rgba(0,0,0,.35);
-}
-.node.circle-red{
-  border-color:#ff5252 !important;
-  box-shadow:inset 0 0 0 2px rgba(255,82,82,.45),0 8px 25px rgba(0,0,0,.35);
-}
-.tooth-surface .zone.section-blue{
-  background:#4d8dff !important;
-  box-shadow:none;
-}
-.tooth-surface .zone.section-red{
-  background:#ff5252 !important;
-  box-shadow:none;
-}
-.tooth-surface .zone.section-combo{
-  background:#ff5252 !important;
-  box-shadow:inset 0 0 0 2px #4d8dff;
-}
-.tooth-surface .center.section-blue{
-  background:#4d8dff !important;
-  border-color:#4d8dff;
-}
-.tooth-surface .center.section-red{
-  background:#ff5252 !important;
-  border-color:#ff5252;
-}
-.tooth-surface .center.section-combo{
-  background:#ff5252 !important;
-  border-color:#4d8dff;
-  box-shadow:inset 0 0 0 1px #4d8dff;
-}
-.node:hover{
-  transform:translateY(-4px) scale(1.035);
-  border-color:rgba(255,255,255,.7);
-  box-shadow:0 12px 35px rgba(0,0,0,.55);
-}
-.node .num{
-  position:absolute;top:13%;left:0;right:0;
-  font-size:10px;color:#8d8d95;letter-spacing:1px;
-}
-.node .title{
-  max-width:80%;font-size:13px;font-weight:700;
-  overflow:hidden;text-overflow:ellipsis;
-}
-.node .items{
-  position:absolute;bottom:12%;font-size:9px;color:#999;
-}
-.node.has-data{border-color:rgba(255,255,255,.5)}
-.node.dim{opacity:.15}
 .empty{
   max-width:1450px;margin:40px auto;padding:40px;text-align:center;color:var(--muted);
 }
@@ -393,7 +404,6 @@ input[type=color]{padding:3px;width:48px;height:38px}
   <div class="top">
     <div class="brand">
       <h1>ODONTOGRAMA</h1>
-      <p>48 piezas editables · clic en una pieza para abrir su ficha.</p>
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Exportar</button>
@@ -406,22 +416,36 @@ input[type=color]{padding:3px;width:48px;height:38px}
 
 <div class="controls">
   <input class="search" id="search" placeholder="Buscar pieza, nombre o información...">
-
+  <span class="counter" id="counter">32 piezas</span>
 </div>
-
 
 <main class="odontogram">
   <section class="arch top" id="topArch">
     <span class="arch-label">Arcada superior</span>
   </section>
   <div class="center-gap"></div>
-  <div style="text-align:center;color:#666;font-size:10px;margin:-4px 0 8px;letter-spacing:.5px">
-  </div>
+  
   <section class="arch bottom" id="bottomArch">
     <span class="arch-label">Arcada inferior</span>
   </section>
 </main>
 
+<!-- Nueva sección de Radiografía y Descripción -->
+<div class="extra-section">
+  <div class="radio-card">
+    <label class="title-label">RADIOGRAFÍA:</label>
+    <div class="radio-options">
+      <label><input type="radio" name="radiografia" value="SI"> SÍ</label>
+      <label><input type="radio" name="radiografia" value="NO"> NO</label>
+      <label><input type="radio" name="radiografia" value="" checked> Ninguno</label>
+    </div>
+  </div>
+
+  <div class="desc-card">
+    <label for="generalDescription">DESCRIPCIÓN GENERAL / OBSERVACIONES:</label>
+    <textarea id="generalDescription" placeholder="Escriba aquí los detalles o notas generales de la consulta o ficha del paciente..."></textarea>
+  </div>
+</div>
 
 <div class="overlay" id="overlay">
   <section class="modal" role="dialog" aria-modal="true">
@@ -501,16 +525,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
 
 <script>
 const STORAGE_KEY = "editor-48-circulos-diagonal-clean-v2";
-let data = null;
-try{
-  const saved=localStorage.getItem(STORAGE_KEY);
-  data=saved ? JSON.parse(saved) : null;
-}catch(err){
-  console.warn("Datos guardados inválidos; se restaurarán las piezas.",err);
-  data=null;
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(_){}
-}
-let current = null;
+let appState = null;
 
 const FDI_TEETH=[
   18,17,16,15,14,13,12,11,
@@ -519,208 +534,238 @@ const FDI_TEETH=[
   31,32,33,34,35,36,37,38
 ];
 
-function initialData(){
+function initialTeethData(){
   return FDI_TEETH.map(id=>({
     id,title:"",description:"",color:"#050505",status:"normal",items:[],marks:{q1:{marked:false,color:"#f4f4f4"},q2:{marked:false,color:"#f4f4f4"},q3:{marked:false,color:"#f4f4f4"},q4:{marked:false,color:"#f4f4f4"},center:{marked:false,color:"#f4f4f4"}},label:{value:null,color:"blue"},circleColor:null
   }));
 }
 
+function initialAppState(){
+  return {
+    radiografia: "",
+    generalDescription: "",
+    teeth: initialTeethData()
+  };
+}
+
 function normalizeData(value){
-  const source=Array.isArray(value) ? value : [];
-  const map=new Map();
-  source.forEach(x=>{ if(x && x.id!=null) map.set(Number(x.id),x); });
-  return FDI_TEETH.map(id=>{
-    const raw=map.get(id) || {};
-    const srcMarks=raw.marks && typeof raw.marks==="object" ? raw.marks : {};
-    const marks={};
-    ["q1","q2","q3","q4","center"].forEach(k=>{
-      const m=srcMarks[k] && typeof srcMarks[k]==="object" ? srcMarks[k] : {};
-      marks[k]={marked:m.marked===true,color:["#4d8dff","#ff5252","#combo","#cross-red","#cross-blue"].includes(m.color)?m.color:"#f4f4f4"};
+  if (!value || typeof value !== "object") return initialAppState();
+  
+  // Soporte para archivos guardados con la estructura anterior (solo array)
+  let teethRaw = Array.isArray(value) ? value : (Array.isArray(value.teeth) ? value.teeth : []);
+  let rad = typeof value.radiografia === "string" ? value.radiografia : "";
+  let genDesc = typeof value.generalDescription === "string" ? value.generalDescription : "";
+
+  const map = new Map();
+  teethRaw.forEach(x => { if(x && x.id!=null) map.set(Number(x.id), x); });
+
+  const normalizedTeeth = FDI_TEETH.map(id => {
+    const raw = map.get(id) || {};
+    const srcMarks = raw.marks && typeof raw.marks === "object" ? raw.marks : {};
+    const marks = {};
+    ["q1","q2","q3","q4","center"].forEach(k => {
+      const m = srcMarks[k] && typeof srcMarks[k] === "object" ? srcMarks[k] : {};
+      marks[k] = {marked: m.marked === true, color: ["#4d8dff","#ff5252","#combo","#cross-red","#cross-blue"].includes(m.color) ? m.color : "#f4f4f4"};
     });
     return {
       id,
-      title:typeof raw.title==="string"?raw.title:"",
-      description:typeof raw.description==="string"?raw.description:"",
-      color:typeof raw.color==="string"?raw.color:"#050505",
-      status:["normal","active","done","blocked"].includes(raw.status)?raw.status:"normal",
-      items:Array.isArray(raw.items)?raw.items.filter(x=>x&&typeof x==="object").map(x=>({text:String(x.text??""),type:typeof x.type==="string"?x.type:"Otro"})):[],
+      title: typeof raw.title === "string" ? raw.title : "",
+      description: typeof raw.description === "string" ? raw.description : "",
+      color: typeof raw.color === "string" ? raw.color : "#050505",
+      status: ["normal","active","done","blocked"].includes(raw.status) ? raw.status : "normal",
+      items: Array.isArray(raw.items) ? raw.items.filter(x => x && typeof x === "object").map(x => ({text: String(x.text??""), type: typeof x.type === "string" ? x.type : "Otro"})) : [],
       marks,
-      label:{value:raw.label&&["A","TC","RR","/"].includes(raw.label.value)?raw.label.value:null,color:raw.label&&raw.label.color==="red"?"red":"blue"},
-      circleColor:raw.circleColor==="blue"||raw.circleColor==="red"?raw.circleColor:null
+      label: {value: raw.label && ["A","TC","RR","/"].includes(raw.label.value) ? raw.label.value : null, color: raw.label && raw.label.color === "red" ? "red" : "blue"},
+      circleColor: raw.circleColor === "blue" || raw.circleColor === "red" ? raw.circleColor : null
     };
   });
+
+  return {
+    radiografia: ["SI", "NO"].includes(rad) ? rad : "",
+    generalDescription: genDesc,
+    teeth: normalizedTeeth
+  };
 }
 
-data=normalizeData(data);
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  appState = saved ? normalizeData(JSON.parse(saved)) : initialAppState();
+} catch(err) {
+  console.warn("Datos guardados inválidos; se restaurarán.", err);
+  appState = initialAppState();
+  try { localStorage.removeItem(STORAGE_KEY); } catch(_){}
+}
 
+let current = null;
 const $ = id => document.getElementById(id);
 
 function saveStorage(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
   }catch(err){
-    console.warn("No se pudo guardar en localStorage.",err);
+    console.warn("No se pudo guardar en localStorage.", err);
   }
 }
 
 function escapeHTML(str){
-  return String(str ?? "").replace(/[&<>"']/g,m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  return String(str ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
   }[m]));
 }
 
 function ensureMarks(item){
-  if(!item.marks || typeof item.marks!=="object") item.marks={};
+  if(!item.marks || typeof item.marks !== "object") item.marks = {};
 
-  ["q1","q2","q3","q4","center"].forEach(k=>{
-    if(!item.marks[k] || typeof item.marks[k]!=="object"){
-      item.marks[k]={marked:false,color:"#f4f4f4"};
+  ["q1","q2","q3","q4","center"].forEach(k => {
+    if(!item.marks[k] || typeof item.marks[k] !== "object"){
+      item.marks[k] = {marked: false, color: "#f4f4f4"};
     }
-    if(typeof item.marks[k].marked !== "boolean") item.marks[k].marked=false;
-    if(typeof item.marks[k].color !== "string") item.marks[k].color="#f4f4f4";
+    if(typeof item.marks[k].marked !== "boolean") item.marks[k].marked = false;
+    if(typeof item.marks[k].color !== "string") item.marks[k].color = "#f4f4f4";
   });
 
-  if(!item.label || typeof item.label!=="object"){
-    item.label={value:null,color:"blue"};
+  if(!item.label || typeof item.label !== "object"){
+    item.label = {value: null, color: "blue"};
   }
-  if(!("circleColor" in item)) item.circleColor=null;
+  if(!("circleColor" in item)) item.circleColor = null;
 
-  if(!["A","TC","RR","/"].includes(item.label.value)) item.label.value=null;
-  if(!["blue","red"].includes(item.label.color)) item.label.color="blue";
+  if(!["A","TC","RR","/"].includes(item.label.value)) item.label.value = null;
+  if(!["blue","red"].includes(item.label.color)) item.label.color = "blue";
 }
 
-function makeNode(item,index){
+function makeNode(item, index){
   ensureMarks(item);
-  const wrap=document.createElement("div");
-  wrap.className="node-wrap";
-  const b=document.createElement("button");
-  b.className="node"+(item.circleColor==="blue"?" circle-blue":item.circleColor==="red"?" circle-red":"")+(item.title||item.description||item.items.length||Object.values(item.marks).some(x=>x.marked)?" has-data":"");
-  b.style.background=item.color||"#050505";
-  b.style.borderColor=item.status==="done"?"#55d88a":item.status==="active"?"#fff":item.status==="blocked"?"#ff5555":"rgba(255,255,255,.22)";
-  b.title=item.title||`Pieza #${String(item.id).padStart(2,"0")}`;
+  const wrap = document.createElement("div");
+  wrap.className = "node-wrap";
+  const b = document.createElement("button");
+  b.className = "node" + (item.circleColor === "blue" ? " circle-blue" : item.circleColor === "red" ? " circle-red" : "") + (item.title || item.description || item.items.length || Object.values(item.marks).some(x => x.marked) ? " has-data" : "");
+  b.style.background = item.color || "#050505";
+  b.style.borderColor = item.status === "done" ? "#55d88a" : item.status === "active" ? "#fff" : item.status === "blocked" ? "#ff5555" : "rgba(255,255,255,.22)";
+  b.title = item.title || `Pieza #${String(item.id).padStart(2,"0")}`;
 
-  const surface=document.createElement("span");
-  surface.className="tooth-surface";
-  ["q1","q2","q3","q4"].forEach(k=>{
-    const z=document.createElement("span");
-    const m=item.marks[k];
-    z.className=`zone ${k}`;
+  const surface = document.createElement("span");
+  surface.className = "tooth-surface";
+  ["q1","q2","q3","q4"].forEach(k => {
+    const z = document.createElement("span");
+    const m = item.marks[k];
+    z.className = `zone ${k}`;
     if(m.marked){
-      z.classList.add(m.color==="#4d8dff"?"section-blue":m.color==="#ff5252"?"section-red":m.color==="#cross-red"?"section-cross-red":m.color==="#cross-blue"?"section-cross-blue":"section-combo");
+      z.classList.add(m.color === "#4d8dff" ? "section-blue" : m.color === "#ff5252" ? "section-red" : m.color === "#cross-red" ? "section-cross-red" : m.color === "#cross-blue" ? "section-cross-blue" : "section-combo");
     }
-    z.onclick=e=>{
+    z.onclick = e => {
       e.stopPropagation();
-      const m=item.marks[k];
+      const m = item.marks[k];
       if(!m.marked){
-        m.marked=true;
-        m.color="#4d8dff";
-      }else if(m.color==="#4d8dff"){
-        m.color="#ff5252";
-      }else if(m.color==="#ff5252"){
-        m.color="#combo";
-        item.circleColor=null;
-      }else if(m.color==="#combo"){
-        m.color="#cross-red";
-      }else if(m.color==="#cross-red"){
-        m.color="#cross-blue";
+        m.marked = true;
+        m.color = "#4d8dff";
+      }else if(m.color === "#4d8dff"){
+        m.color = "#ff5252";
+      }else if(m.color === "#ff5252"){
+        m.color = "#combo";
+        item.circleColor = null;
+      }else if(m.color === "#combo"){
+        m.color = "#cross-red";
+      }else if(m.color === "#cross-red"){
+        m.color = "#cross-blue";
       }else{
-        m.marked=false;
-        m.color="#f4f4f4";
+        m.marked = false;
+        m.color = "#f4f4f4";
       }
-      saveStorage();render();
+      saveStorage(); render();
     };
     surface.appendChild(z);
   });
-  const c=document.createElement("span");
-  const cm=item.marks.center;
-  c.className="center";
+  const c = document.createElement("span");
+  const cm = item.marks.center;
+  c.className = "center";
   if(cm.marked){
-    c.classList.add(cm.color==="#4d8dff"?"section-blue":cm.color==="#ff5252"?"section-red":cm.color==="#cross-red"?"section-cross-red":cm.color==="#cross-blue"?"section-cross-blue":"section-combo");
+    c.classList.add(cm.color === "#4d8dff" ? "section-blue" : cm.color === "#ff5252" ? "section-red" : cm.color === "#cross-red" ? "section-cross-red" : cm.color === "#cross-blue" ? "section-cross-blue" : "section-combo");
   }
-  c.onclick=e=>{
+  c.onclick = e => {
     e.stopPropagation();
-    const m=item.marks.center;
+    const m = item.marks.center;
     if(!m.marked){
-      m.marked=true;
-      m.color="#4d8dff";     // 1. Azul
-    }else if(m.color==="#4d8dff"){
-      m.color="#ff5252";     // 2. Rojo
-    }else if(m.color==="#ff5252"){
-      m.color="#combo";       // 3. Combo
-      item.circleColor=null;
-    }else if(m.color==="#combo"){
-      m.color="#cross-red";   // 4. Cruz Roja
-    }else if(m.color==="#cross-red"){
-      m.color="#cross-blue";  // 5. Cruz Azul
+      m.marked = true;
+      m.color = "#4d8dff";
+    }else if(m.color === "#4d8dff"){
+      m.color = "#ff5252";
+    }else if(m.color === "#ff5252"){
+      m.color = "#combo";
+      item.circleColor = null;
+    }else if(m.color === "#combo"){
+      m.color = "#cross-red";
+    }else if(m.color === "#cross-red"){
+      m.color = "#cross-blue";
     }else{
-      m.marked=false;         // 6. Desmarcar
-      m.color="#f4f4f4";
+      m.marked = false;
+      m.color = "#f4f4f4";
     }
-    saveStorage();render();
+    saveStorage(); render();
   };
   surface.appendChild(c); b.appendChild(surface);
 
-  const num=document.createElement("span");
-  num.className="num";
-  num.textContent=`#${String(item.id).padStart(2,"0")}`;
+  const num = document.createElement("span");
+  num.className = "num";
+  num.textContent = `#${String(item.id).padStart(2,"0")}`;
   wrap.appendChild(b);
-  wrap.insertBefore(num,b);
-  b.addEventListener("click",e=>{
+  wrap.insertBefore(num, b);
+  b.addEventListener("click", e => {
     if(e.target.closest(".tooth-surface")) return;
-    if(item.circleColor===null) item.circleColor="blue";
-    else if(item.circleColor==="blue") item.circleColor="red";
-    else item.circleColor=null;
-    saveStorage();render();
+    if(item.circleColor === null) item.circleColor = "blue";
+    else if(item.circleColor === "blue") item.circleColor = "red";
+    else item.circleColor = null;
+    saveStorage(); render();
   });
-  b.addEventListener("dblclick",e=>{
+  b.addEventListener("dblclick", e => {
     if(e.target.closest(".tooth-surface")) return;
     e.stopPropagation();
     openEditor(index);
   });
 
-  const labels=document.createElement("div");labels.className="tooth-labels";
-  ["A","TC","RR","/"].forEach(v=>{
-    const x=document.createElement("button");x.type="button";x.className="label-btn"+(item.label.value===v?" selected "+item.label.color:"");x.textContent=v;
-    x.onclick=e=>{
+  const labels = document.createElement("div"); labels.className = "tooth-labels";
+  ["A","TC","RR","/"].forEach(v => {
+    const x = document.createElement("button"); x.type = "button"; x.className = "label-btn" + (item.label.value === v ? " selected " + item.label.color : ""); x.textContent = v;
+    x.onclick = e => {
       e.stopPropagation();
-      if(item.label.value!==v){
-        item.label.value=v;
-        item.label.color="red";
-      }else if(item.label.color==="red"){
-        item.label.color="blue";
+      if(item.label.value !== v){
+        item.label.value = v;
+        item.label.color = "red";
+      }else if(item.label.color === "red"){
+        item.label.color = "blue";
       }else{
-        item.label.value=null;
-        item.label.color="blue";
+        item.label.value = null;
+        item.label.color = "blue";
       }
-      saveStorage();render();
+      saveStorage(); render();
     };
     labels.appendChild(x);
   });
   wrap.appendChild(labels);
   return wrap;
 }
-function render(){
-  const q=$("search").value.trim().toLowerCase();
-  $("topArch").querySelectorAll(".half").forEach(x=>x.remove());
-  $("bottomArch").querySelectorAll(".half").forEach(x=>x.remove());
 
-  const byId = new Map(data.map((item,index)=>[item.id,{item,index}]));
-  let shown=0;
+function render(){
+  const q = $("search").value.trim().toLowerCase();
+  $("topArch").querySelectorAll(".half").forEach(x => x.remove());
+  $("bottomArch").querySelectorAll(".half").forEach(x => x.remove());
+
+  const byId = new Map(appState.teeth.map((item, index) => [item.id, {item, index}]));
+  let shown = 0;
 
   const makeHalf = (ids) => {
-    const half=document.createElement("div");
-    half.className="half "+(ids[0] > ids[ids.length-1] ? "left":"right");
+    const half = document.createElement("div");
+    half.className = "half " + (ids[0] > ids[ids.length-1] ? "left" : "right");
 
-    ids.forEach(id=>{
-      const found=byId.get(id);
-      if(!found)return;
-      const {item,index}=found;
+    ids.forEach(id => {
+      const found = byId.get(id);
+      if(!found) return;
+      const {item, index} = found;
 
-      const text=(item.title+" "+item.description+" "+item.items.map(x=>x&&x.text?x.text:"").join(" ")).toLowerCase();
-      const match=!q || text.includes(q) || String(item.id).includes(q);
+      const text = (item.title + " " + item.description + " " + item.items.map(x => x && x.text ? x.text : "").join(" ")).toLowerCase();
+      const match = !q || text.includes(q) || String(item.id).includes(q);
       if(match) shown++;
 
-      const node=makeNode(item,index);
+      const node = makeNode(item, index);
       if(!match) node.classList.add("dim");
       half.appendChild(node);
     });
@@ -734,41 +779,46 @@ function render(){
   $("bottomArch").appendChild(makeHalf([48,47,46,45,44,43,42,41]));
   $("bottomArch").appendChild(makeHalf([31,32,33,34,35,36,37,38]));
 
-  $("counter").textContent=`${shown} de 32 piezas`;
+  $("counter").textContent = `${shown} de 32 piezas`;
+
+  // Renderizar campos extra
+  const radRadio = document.querySelector(`input[name="radiografia"][value="${appState.radiografia}"]`);
+  if(radRadio) radRadio.checked = true;
+  $("generalDescription").value = appState.generalDescription || "";
 }
 
 function openEditor(index){
-  current=index;
-  const item=data[index];
-  $("modalTitle").textContent=`Editar círculo #${String(item.id).padStart(2,"0")}`;
-  $("titleInput").value=item.title;
-  $("descriptionInput").value=item.description;
-  $("colorInput").value=item.color || "#050505";
-  $("colorText").textContent=item.color || "#050505";
-  $("statusInput").value=item.status || "normal";
-  $("newItemText").value="";
+  current = index;
+  const item = appState.teeth[index];
+  $("modalTitle").textContent = `Editar círculo #${String(item.id).padStart(2,"0")}`;
+  $("titleInput").value = item.title;
+  $("descriptionInput").value = item.description;
+  $("colorInput").value = item.color || "#050505";
+  $("colorText").textContent = item.color || "#050505";
+  $("statusInput").value = item.status || "normal";
+  $("newItemText").value = "";
   renderItems();
   $("overlay").classList.add("open");
-  setTimeout(()=>$("titleInput").focus(),50);
+  setTimeout(() => $("titleInput").focus(), 50);
 }
 
 function closeEditor(){
-  current=null;
+  current = null;
   $("overlay").classList.remove("open");
 }
 
 function renderItems(){
-  const item=data[current];
-  $("itemCount").textContent=`${item.items.length} elemento${item.items.length===1?"":"s"}`;
-  $("itemsList").innerHTML="";
-  item.items.forEach((x,i)=>{
-    const row=document.createElement("div");
-    row.className="item";
-    row.innerHTML=`<div><strong style="font-size:11px">${escapeHTML(x.type)}</strong><br>
+  const item = appState.teeth[current];
+  $("itemCount").textContent = `${item.items.length} elemento${item.items.length === 1 ? "" : "s"}`;
+  $("itemsList").innerHTML = "";
+  item.items.forEach((x, i) => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `<div><strong style="font-size:11px">${escapeHTML(x.type)}</strong><br>
       <span style="font-size:12px;color:#ccc">${escapeHTML(x.text)}</span></div>
       <button title="Eliminar">✕</button>`;
-    row.querySelector("button").onclick=()=>{
-      item.items.splice(i,1);
+    row.querySelector("button").onclick = () => {
+      item.items.splice(i, 1);
       renderItems();
       saveStorage();
       render();
@@ -778,78 +828,92 @@ function renderItems(){
 }
 
 function saveCurrent(){
-  if(current===null)return;
-  const item=data[current];
-  item.title=$("titleInput").value.trim();
-  item.description=$("descriptionInput").value.trim();
-  item.color=$("colorInput").value;
-  item.status=$("statusInput").value;
-  saveStorage();render();closeEditor();
+  if(current === null) return;
+  const item = appState.teeth[current];
+  item.title = $("titleInput").value.trim();
+  item.description = $("descriptionInput").value.trim();
+  item.color = $("colorInput").value;
+  item.status = $("statusInput").value;
+  saveStorage(); render(); closeEditor();
 }
 
-$("saveBtn").onclick=saveCurrent;
-$("cancelBtn").onclick=closeEditor;
-$("closeBtn").onclick=closeEditor;
-$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeEditor()});
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape")closeEditor();
-  if((e.ctrlKey||e.metaKey)&&e.key==="s"){e.preventDefault();saveCurrent();}
+$("saveBtn").onclick = saveCurrent;
+$("cancelBtn").onclick = closeEditor;
+$("closeBtn").onclick = closeEditor;
+$("overlay").addEventListener("click", e => { if(e.target === $("overlay")) closeEditor(); });
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeEditor();
+  if((e.ctrlKey || e.metaKey) && e.key === "s"){ e.preventDefault(); saveCurrent(); }
 });
 
-$("colorInput").addEventListener("input",e=>$("colorText").textContent=e.target.value);
+$("colorInput").addEventListener("input", e => $("colorText").textContent = e.target.value);
 
-$("addItemBtn").onclick=()=>{
-  const text=$("newItemText").value.trim();
-  if(!text || current===null)return;
-  data[current].items.push({text,type:$("newItemType").value});
-  $("newItemText").value="";
-  renderItems();saveStorage();render();
+$("addItemBtn").onclick = () => {
+  const text = $("newItemText").value.trim();
+  if(!text || current === null) return;
+  appState.teeth[current].items.push({text, type: $("newItemType").value});
+  $("newItemText").value = "";
+  renderItems(); saveStorage(); render();
 };
-$("newItemText").addEventListener("keydown",e=>{
-  if(e.key==="Enter")$("addItemBtn").click();
+$("newItemText").addEventListener("keydown", e => {
+  if(e.key === "Enter") $("addItemBtn").click();
 });
 
-$("deleteDataBtn").onclick=()=>{
-  if(current===null)return;
+$("deleteDataBtn").onclick = () => {
+  if(current === null) return;
   if(confirm("¿Vaciar toda la información de este círculo?")){
-    data[current]={id:data[current].id,title:"",description:"",color:"#050505",status:"normal",items:[],marks:{q1:{marked:false,color:"#f4f4f4"},q2:{marked:false,color:"#f4f4f4"},q3:{marked:false,color:"#f4f4f4"},q4:{marked:false,color:"#f4f4f4"},center:{marked:false,color:"#f4f4f4"}},label:{value:null,color:"blue"}};
-    saveStorage();render();openEditor(current);
+    appState.teeth[current] = {id: appState.teeth[current].id, title: "", description: "", color: "#050505", status: "normal", items: [], marks: {q1: {marked: false, color: "#f4f4f4"}, q2: {marked: false, color: "#f4f4f4"}, q3: {marked: false, color: "#f4f4f4"}, q4: {marked: false, color: "#f4f4f4"}, center: {marked: false, color: "#f4f4f4"}}, label: {value: null, color: "blue"}};
+    saveStorage(); render(); openEditor(current);
   }
 };
 
-$("search").addEventListener("input",render);
+$("search").addEventListener("input", render);
 
-$("resetBtn").onclick=()=>{
-  if(confirm("Esto va a borrar la información de las 32 piezas dentales. ¿Continuar?")){
-    data=initialData();saveStorage();render();
+// Handlers para Radiografía y Descripción
+document.querySelectorAll('input[name="radiografia"]').forEach(radio => {
+  radio.addEventListener("change", e => {
+    appState.radiografia = e.target.value;
+    saveStorage();
+  });
+});
+
+$("generalDescription").addEventListener("input", e => {
+  appState.generalDescription = e.target.value;
+  saveStorage();
+});
+
+$("resetBtn").onclick = () => {
+  if(confirm("Esto va a borrar la información del odontograma, radiografía y descripción. ¿Continuar?")){
+    appState = initialAppState();
+    saveStorage(); render();
   }
 };
 
-$("exportBtn").onclick=()=>{
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="odontograma.json";
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(appState, null, 2)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "odontograma-backup.json";
   a.click();
   URL.revokeObjectURL(a.href);
 };
 
-$("importBtn").onclick=()=>$("fileInput").click();
-$("fileInput").onchange=async e=>{
-  const file=e.target.files[0]; if(!file)return;
-  try{
-    const imported=JSON.parse(await file.text());
-    if(!Array.isArray(imported))throw new Error();
-    data=normalizeData(imported);saveStorage();render();alert("Datos importados correctamente.");
-  }catch{
+$("importBtn").onclick = () => $("fileInput").click();
+$("fileInput").onchange = async e => {
+  const file = e.target.files[0]; if(!file) return;
+  try {
+    const imported = JSON.parse(await file.text());
+    appState = normalizeData(imported);
+    saveStorage(); render();
+    alert("Datos importados correctamente.");
+  } catch {
     alert("El archivo no tiene un formato válido para esta página.");
   }
-  e.target.value="";
+  e.target.value = "";
 };
 
 render();
 </script>
-
 
 <style id="numbers-above">
 .node-wrap .num{
