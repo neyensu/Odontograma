@@ -893,7 +893,7 @@ $("exportBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(appState, null, 2)], {type: "application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "odontograma-backup.json";
+  a.download = "odontograma.json";
   a.click();
   URL.revokeObjectURL(a.href);
 };
