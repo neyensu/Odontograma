@@ -393,7 +393,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
   <div class="top">
     <div class="brand">
       <h1>ODONTOGRAMA</h1>
-      
+      <p>48 piezas editables · clic en una pieza para abrir su ficha.</p>
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Exportar</button>
@@ -406,7 +406,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
 
 <div class="controls">
   <input class="search" id="search" placeholder="Buscar pieza, nombre o información...">
-  <span class="counter" id="counter">32 piezas</span>
+
 </div>
 
 
@@ -415,7 +415,8 @@ input[type=color]{padding:3px;width:48px;height:38px}
     <span class="arch-label">Arcada superior</span>
   </section>
   <div class="center-gap"></div>
- 
+  <div style="text-align:center;color:#666;font-size:10px;margin:-4px 0 8px;letter-spacing:.5px">
+  </div>
   <section class="arch bottom" id="bottomArch">
     <span class="arch-label">Arcada inferior</span>
   </section>
@@ -468,7 +469,6 @@ input[type=color]{padding:3px;width:48px;height:38px}
       </div>
 
       <div>
-        
         <div class="hint" style="margin-bottom:7px">Agregar algo al círculo</div>
         <div class="add-item">
           <input id="newItemText" placeholder="Ej: enlace, tarea, nota, persona...">
@@ -535,7 +535,7 @@ function normalizeData(value){
     const marks={};
     ["q1","q2","q3","q4","center"].forEach(k=>{
       const m=srcMarks[k] && typeof srcMarks[k]==="object" ? srcMarks[k] : {};
-      marks[k]={marked:m.marked===true,color:["#4d8dff","#ff5252","#combo","#cross-red"].includes(m.color)?m.color:"#f4f4f4"};
+      marks[k]={marked:m.marked===true,color:["#4d8dff","#ff5252","#combo","#cross-red","#cross-blue"].includes(m.color)?m.color:"#f4f4f4"};
     });
     return {
       id,
@@ -606,7 +606,7 @@ function makeNode(item,index){
     const m=item.marks[k];
     z.className=`zone ${k}`;
     if(m.marked){
-      z.classList.add(m.color==="#4d8dff"?"section-blue":m.color==="#ff5252"?"section-red":m.color==="#cross-red"?"section-cross-red":"section-combo");
+      z.classList.add(m.color==="#4d8dff"?"section-blue":m.color==="#ff5252"?"section-red":m.color==="#cross-red"?"section-cross-red":m.color==="#cross-blue"?"section-cross-blue":"section-combo");
     }
     z.onclick=e=>{
       e.stopPropagation();
@@ -621,6 +621,8 @@ function makeNode(item,index){
         item.circleColor=null;
       }else if(m.color==="#combo"){
         m.color="#cross-red";
+      }else if(m.color==="#cross-red"){
+        m.color="#cross-blue";
       }else{
         m.marked=false;
         m.color="#f4f4f4";
@@ -632,22 +634,26 @@ function makeNode(item,index){
   const c=document.createElement("span");
   const cm=item.marks.center;
   c.className="center";
-  if(cm.marked)c.classList.add(cm.color==="#4d8dff"?"section-blue":cm.color==="#ff5252"?"section-red":cm.color==="#cross-red"?"section-cross-red":"section-combo");
+  if(cm.marked){
+    c.classList.add(cm.color==="#4d8dff"?"section-blue":cm.color==="#ff5252"?"section-red":cm.color==="#cross-red"?"section-cross-red":cm.color==="#cross-blue"?"section-cross-blue":"section-combo");
+  }
   c.onclick=e=>{
     e.stopPropagation();
     const m=item.marks.center;
     if(!m.marked){
       m.marked=true;
-      m.color="#4d8dff"; // 1. Azul
+      m.color="#4d8dff";     // 1. Azul
     }else if(m.color==="#4d8dff"){
-      m.color="#ff5252"; // 2. Rojo
+      m.color="#ff5252";     // 2. Rojo
     }else if(m.color==="#ff5252"){
-      m.color="#combo";   // 3. Combo
+      m.color="#combo";       // 3. Combo
       item.circleColor=null;
     }else if(m.color==="#combo"){
-      m.color="#cross-red"; // 4. Cruz / Líneas en ROJO
+      m.color="#cross-red";   // 4. Cruz Roja
+    }else if(m.color==="#cross-red"){
+      m.color="#cross-blue";  // 5. Cruz Azul
     }else{
-      m.marked=false;     // 5. Desmarcar
+      m.marked=false;         // 6. Desmarcar
       m.color="#f4f4f4";
     }
     saveStorage();render();
@@ -823,7 +829,7 @@ $("exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="48-circulos-backup.json";
+  a.download="odontograma.json";
   a.click();
   URL.revokeObjectURL(a.href);
 };
@@ -880,14 +886,26 @@ render();
   background: #ff5252 !important;
   z-index: 6 !important;
 }
-
 .tooth-surface .center.section-cross-red {
   background: #050505 !important;
   border-color: #ff5252 !important;
 }
-
 .tooth-surface .zone.section-cross-red {
   background: #ff5252 !important;
+}
+
+/* 5.º Estado: Cruz / Líneas en azul */
+.tooth-surface:has(.center.section-cross-blue)::before,
+.tooth-surface:has(.center.section-cross-blue)::after {
+  background: #4d8dff !important;
+  z-index: 6 !important;
+}
+.tooth-surface .center.section-cross-blue {
+  background: #050505 !important;
+  border-color: #4d8dff !important;
+}
+.tooth-surface .zone.section-cross-blue {
+  background: #4d8dff !important;
 }
 </style>
 
