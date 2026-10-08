@@ -52,7 +52,6 @@ header{
 .search{
   width:280px;max-width:100%;padding:10px 12px;border-radius:10px;
   border:1px solid var(--line);background:#111115;color:white;outline:none;
-  display: none;
 }
 .search:focus{border-color:#666}
 .counter{color:var(--muted);font-size:12px;margin-left:auto}
@@ -92,7 +91,6 @@ header{
 .arch-label{
   position:absolute;
   left:0;
-  top:10%;
   width:100%;
   text-align:center;
   color:#55555e;
@@ -394,7 +392,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
   <div class="top">
     <div class="brand">
       <h1>ODONTOGRAMA</h1>
-   
+      <p>48 piezas editables · clic en una pieza para abrir su ficha.</p>
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Exportar</button>
@@ -416,7 +414,9 @@ input[type=color]{padding:3px;width:48px;height:38px}
     <span class="arch-label">Arcada superior</span>
   </section>
   <div class="center-gap"></div>
-  
+  <div style="text-align:center;color:#666;font-size:10px;margin:-4px 0 8px;letter-spacing:.5px">
+    Círculo: azul → rojo → quitar · sección: azul → rojo → borde azul + interior rojo → quitar · doble clic para editar
+  </div>
   <section class="arch bottom" id="bottomArch">
     <span class="arch-label">Arcada inferior</span>
   </section>
@@ -501,7 +501,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
 </div>
 
 <script>
-const STORAGE_KEY = "editor-48-circulos-clean-v1";
+const STORAGE_KEY = "editor-48-circulos-diagonal-clean-v2";
 let data = null;
 try{
   const saved=localStorage.getItem(STORAGE_KEY);
@@ -527,49 +527,34 @@ function initialData(){
 }
 
 function normalizeData(value){
-  if(!Array.isArray(value)) return initialData();
-
-  const map=new Map(
-    value
-      .filter(x=>x && x.id!=null)
-      .map(x=>[Number(x.id),x])
-  );
-
+  const source=Array.isArray(value) ? value : [];
+  const map=new Map();
+  source.forEach(x=>{ if(x && x.id!=null) map.set(Number(x.id),x); });
   return FDI_TEETH.map(id=>{
-    const item=map.get(id) || {
+    const raw=map.get(id) || {};
+    const srcMarks=raw.marks && typeof raw.marks==="object" ? raw.marks : {};
+    const marks={};
+    ["q1","q2","q3","q4","center"].forEach(k=>{
+      const m=srcMarks[k] && typeof srcMarks[k]==="object" ? srcMarks[k] : {};
+      marks[k]={marked:m.marked===true,color:["#4d8dff","#ff5252","#combo"].includes(m.color)?m.color:"#f4f4f4"};
+    });
+    return {
       id,
-      title:"",
-      description:"",
-      color:"#050505",
-      status:"normal",
-      items:[],
-      marks:{
-        q1:{marked:false,color:"#f4f4f4"},
-        q2:{marked:false,color:"#f4f4f4"},
-        q3:{marked:false,color:"#f4f4f4"},
-        q4:{marked:false,color:"#f4f4f4"},
-        center:{marked:false,color:"#f4f4f4"}
-      },
-      label:{value:null,color:"blue"},
-      circleColor:null
+      title:typeof raw.title==="string"?raw.title:"",
+      description:typeof raw.description==="string"?raw.description:"",
+      color:typeof raw.color==="string"?raw.color:"#050505",
+      status:["normal","active","done","blocked"].includes(raw.status)?raw.status:"normal",
+      items:Array.isArray(raw.items)?raw.items.filter(x=>x&&typeof x==="object").map(x=>({text:String(x.text??""),type:typeof x.type==="string"?x.type:"Otro"})):[],
+      marks,
+      label:{value:raw.label&&["A","TC","RR"].includes(raw.label.value)?raw.label.value:null,color:raw.label&&raw.label.color==="red"?"red":"blue"},
+      circleColor:raw.circleColor==="blue"||raw.circleColor==="red"?raw.circleColor:null
     };
-
-    item.id=id;
-    if(typeof item.title!=="string") item.title="";
-    if(typeof item.description!=="string") item.description="";
-    if(typeof item.color!=="string") item.color="#050505";
-    if(typeof item.status!=="string") item.status="normal";
-    if(!Array.isArray(item.items)) item.items=[];
-
-    ensureMarks(item);
-    return item;
   });
 }
 
 data=normalizeData(data);
 
 const $ = id => document.getElementById(id);
-const grid=$("grid");
 
 function saveStorage(){
   try{
@@ -634,6 +619,7 @@ function makeNode(item,index){
         m.color="#ff5252";
       }else if(m.color==="#ff5252"){
         m.color="#combo";
+        item.circleColor=null;
       }else{
         m.marked=false;
         m.color="#f4f4f4";
@@ -656,6 +642,7 @@ function makeNode(item,index){
       m.color="#ff5252";
     }else if(m.color==="#ff5252"){
       m.color="#combo";
+      item.circleColor=null;
     }else{
       m.marked=false;
       m.color="#f4f4f4";
@@ -667,7 +654,8 @@ function makeNode(item,index){
   const num=document.createElement("span");
   num.className="num";
   num.textContent=`#${String(item.id).padStart(2,"0")}`;
-  b.appendChild(num);
+  wrap.appendChild(b);
+  wrap.insertBefore(num,b);
   b.addEventListener("click",e=>{
     if(e.target.closest(".tooth-surface")) return;
     if(item.circleColor===null) item.circleColor="blue";
@@ -680,7 +668,6 @@ function makeNode(item,index){
     e.stopPropagation();
     openEditor(index);
   });
-  wrap.appendChild(b);
 
   const labels=document.createElement("div");labels.className="tooth-labels";
   ["A","TC","RR"].forEach(v=>{
@@ -720,7 +707,7 @@ function render(){
       if(!found)return;
       const {item,index}=found;
 
-      const text=(item.title+" "+item.description+" "+item.items.map(x=>x.text).join(" ")).toLowerCase();
+      const text=(item.title+" "+item.description+" "+item.items.map(x=>x&&x.text?x.text:"").join(" ")).toLowerCase();
       const match=!q || text.includes(q) || String(item.id).includes(q);
       if(match) shown++;
 
@@ -856,5 +843,88 @@ $("fileInput").onchange=async e=>{
 
 render();
 </script>
+
+
+<style id="numbers-above">
+.node-wrap .num{
+  position:relative !important;
+  display:block !important;
+  inset:auto !important;
+  margin:0 0 5px !important;
+  text-align:center !important;
+  z-index:3;
+}
+</style>
+
+<style id="diagonal-tooth-lines">
+.tooth-surface{position:absolute;inset:9%;border:1.5px solid rgba(255,255,255,.72);border-radius:50%;overflow:hidden;background:#050505;z-index:2;}
+.tooth-surface .zone{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#050505;}
+.tooth-surface .zone.q1{clip-path:polygon(0 0,100% 0,50% 50%)!important;}
+.tooth-surface .zone.q2{clip-path:polygon(100% 0,100% 100%,50% 50%)!important;}
+.tooth-surface .zone.q3{clip-path:polygon(100% 100%,0 100%,50% 50%)!important;}
+.tooth-surface .zone.q4{clip-path:polygon(0 100%,0 0,50% 50%)!important;}
+.tooth-surface .zone.section-blue{background:#4d8dff!important;}
+.tooth-surface .zone.section-red{background:#ff5252!important;}
+.tooth-surface .zone.section-combo{background:#ff5252!important;}
+.tooth-surface:before,.tooth-surface:after{content:"";position:absolute;left:50%;top:50%;width:141.5%;height:1.5px;background:rgba(255,255,255,.75);transform-origin:center;pointer-events:none;z-index:4;}
+.tooth-surface:before{transform:translate(-50%,-50%) rotate(45deg);}
+.tooth-surface:after{transform:translate(-50%,-50%) rotate(-45deg);}
+.tooth-surface .center{position:absolute!important;left:31%!important;top:31%!important;width:38%!important;height:38%!important;border:1.5px solid rgba(255,255,255,.8);border-radius:50%!important;background:#050505;z-index:5!important;padding:0;}
+.tooth-surface .center.section-blue{background:#4d8dff!important;border-color:#4d8dff!important;}
+.tooth-surface .center.section-red{background:#ff5252!important;border-color:#ff5252!important;}
+.tooth-surface .center.section-combo{background:#ff5252!important;border-color:#4d8dff!important;}
+</style>
+
+<style id="small-tooth-numbers">
+.node-wrap .num{
+  font-size:9px !important;
+  line-height:1 !important;
+  font-weight:600 !important;
+}
+</style>
+
+<style id="combo-per-section-exact">
+/* Combo por SECCIÓN: azul alrededor del rojo de ESA sección solamente. */
+.tooth-surface .zone.section-combo{
+  background:#1769ff !important;
+  box-shadow:none !important;
+  position:absolute !important;
+}
+
+.tooth-surface .zone.section-combo::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:#ff3b3b;
+  pointer-events:none;
+}
+
+/* El rojo interior deja un borde azul visible en todo el perímetro del sector. */
+.tooth-surface .zone.q1.section-combo::after{
+  clip-path:polygon(9% 9%,91% 9%,50% 50%);
+}
+.tooth-surface .zone.q2.section-combo::after{
+  clip-path:polygon(91% 9%,91% 91%,50% 50%);
+}
+.tooth-surface .zone.q3.section-combo::after{
+  clip-path:polygon(91% 91%,9% 91%,50% 50%);
+}
+.tooth-surface .zone.q4.section-combo::after{
+  clip-path:polygon(9% 91%,9% 9%,50% 50%);
+}
+
+.tooth-surface .center.section-combo{
+  background:#ff3b3b !important;
+  border:2px solid #1769ff !important;
+  box-shadow:none !important;
+}
+
+/* Nunca pintar el borde exterior completo por culpa de un combo de sección. */
+.node:has(.zone.section-combo){
+  border-color:rgba(255,255,255,.22) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 8px 25px rgba(0,0,0,.35) !important;
+}
+</style>
+
 </body>
 </html>
