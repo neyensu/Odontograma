@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ODONTOGRAMA</title>
+<link rel="icon" href="logo.png">
 <style>
 :root{
   --bg:#0b0b0d;
@@ -47,13 +48,16 @@ header{
 .btn.danger{color:#ff7b7b}
 .controls{
   max-width:1450px;margin:auto;padding:14px 24px 0;
-  display:none;gap:10px;align-items:center;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
 }
-.search{
+.search {display: none;}
+
+
+.patient-input{
   width:280px;max-width:100%;padding:10px 12px;border-radius:10px;
   border:1px solid var(--line);background:#111115;color:white;outline:none;
 }
-.search:focus{border-color:#666}
+.search:focus, .patient-input:focus{border-color:#666}
 .counter{color:var(--muted);font-size:12px;margin-left:auto}
 .odontogram{
   max-width:1450px;
@@ -218,8 +222,15 @@ header{
 .node .title{z-index:7;pointer-events:none}
 .node .items{pointer-events:none}
 .node-wrap{
-  position:relative;position:relative;flex:0 0 clamp(42px,4.4vw,70px);width:clamp(42px,4.4vw,70px);padding-bottom:30px;display:flex;justify-content:center}
+  position:relative;flex:0 0 clamp(42px,4.4vw,70px);width:clamp(42px,4.4vw,70px);padding-bottom:30px;display:flex;justify-content:center}
 .node-wrap .node{flex:none}
+
+.node-wrap.tooth-hidden .node,
+.node-wrap.tooth-hidden .num {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .tooth-labels{position:absolute;bottom:0;left:50%;transform:translateX(-50%);display:flex;gap:2px;white-space:nowrap;z-index:10}
 .label-btn{border:0;background:transparent;color:#666;font-size:8px;font-weight:800;padding:1px 2px;cursor:pointer;border-radius:3px}
 .label-btn:hover{color:#fff;background:#25252a}
@@ -240,7 +251,6 @@ header{
   border-top:1px dashed rgba(255,255,255,.06);
 }
 
-/* Sección de información adicional abajo */
 .extra-section {
   max-width:1450px;
   margin: 10px auto 60px;
@@ -256,8 +266,13 @@ header{
   padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
+}
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 .radio-card label.title-label {
   font-weight: 700;
@@ -283,6 +298,12 @@ header{
   height: 16px;
   accent-color: #4d8dff;
   cursor: pointer;
+}
+.separator {
+  color: var(--line);
+  font-size: 16px;
+  font-weight: 300;
+  user-select: none;
 }
 .desc-card {
   background: var(--panel);
@@ -404,6 +425,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
   <div class="top">
     <div class="brand">
       <h1>ODONTOGRAMA</h1>
+      
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Exportar</button>
@@ -416,7 +438,8 @@ input[type=color]{padding:3px;width:48px;height:38px}
 
 <div class="controls">
   <input class="search" id="search" placeholder="Buscar pieza, nombre o información...">
-  <span class="counter" id="counter">32 piezas</span>
+  <input class="patient-input" id="patientName" placeholder="Nombre del paciente / Ficha...">
+
 </div>
 
 <main class="odontogram">
@@ -430,14 +453,26 @@ input[type=color]{padding:3px;width:48px;height:38px}
   </section>
 </main>
 
-<!-- Nueva sección de Radiografía y Descripción -->
 <div class="extra-section">
   <div class="radio-card">
-    <label class="title-label">RADIOGRAFÍA:</label>
-    <div class="radio-options">
-      <label><input type="radio" name="radiografia" value="SI"> SÍ</label>
-      <label><input type="radio" name="radiografia" value="NO"> NO</label>
-      <label><input type="radio" name="radiografia" value="" checked> Ninguno</label>
+    <div class="radio-group">
+      <label class="title-label">Derivación radiografica:</label>
+      <div class="radio-options">
+        <label><input type="radio" name="derivacionRadiografica" value="SI"> SÍ</label>
+        <label><input type="radio" name="derivacionRadiografica" value="NO"> NO</label>
+        <label><input type="radio" name="derivacionRadiografica" value="" checked> Ninguno</label>
+      </div>
+    </div>
+
+    <span class="separator">|</span>
+
+    <div class="radio-group">
+      <label class="title-label">Derivacion turno:</label>
+      <div class="radio-options">
+        <label><input type="radio" name="derivacionTurno" value="SI"> SÍ</label>
+        <label><input type="radio" name="derivacionTurno" value="NO"> NO</label>
+        <label><input type="radio" name="derivacionTurno" value="" checked> Ninguno</label>
+      </div>
     </div>
   </div>
 
@@ -542,7 +577,9 @@ function initialTeethData(){
 
 function initialAppState(){
   return {
-    radiografia: "",
+    patientName: "",
+    derivacionRadiografica: "",
+    derivacionTurno: "",
     generalDescription: "",
     teeth: initialTeethData()
   };
@@ -551,9 +588,10 @@ function initialAppState(){
 function normalizeData(value){
   if (!value || typeof value !== "object") return initialAppState();
   
-  // Soporte para archivos guardados con la estructura anterior (solo array)
   let teethRaw = Array.isArray(value) ? value : (Array.isArray(value.teeth) ? value.teeth : []);
-  let rad = typeof value.radiografia === "string" ? value.radiografia : "";
+  let pName = typeof value.patientName === "string" ? value.patientName : "";
+  let radVal = typeof value.derivacionRadiografica === "string" ? value.derivacionRadiografica : (typeof value.radiografia === "string" ? value.radiografia : "");
+  let turVal = typeof value.derivacionTurno === "string" ? value.derivacionTurno : "";
   let genDesc = typeof value.generalDescription === "string" ? value.generalDescription : "";
 
   const map = new Map();
@@ -581,7 +619,9 @@ function normalizeData(value){
   });
 
   return {
-    radiografia: ["SI", "NO"].includes(rad) ? rad : "",
+    patientName: pName,
+    derivacionRadiografica: ["SI", "NO"].includes(radVal) ? radVal : "",
+    derivacionTurno: ["SI", "NO"].includes(turVal) ? turVal : "",
     generalDescription: genDesc,
     teeth: normalizedTeeth
   };
@@ -636,7 +676,8 @@ function ensureMarks(item){
 function makeNode(item, index){
   ensureMarks(item);
   const wrap = document.createElement("div");
-  wrap.className = "node-wrap";
+  wrap.className = "node-wrap" + (item.label.value === "A" ? " tooth-hidden" : "");
+  
   const b = document.createElement("button");
   b.className = "node" + (item.circleColor === "blue" ? " circle-blue" : item.circleColor === "red" ? " circle-red" : "") + (item.title || item.description || item.items.length || Object.values(item.marks).some(x => x.marked) ? " has-data" : "");
   b.style.background = item.color || "#050505";
@@ -645,12 +686,13 @@ function makeNode(item, index){
 
   const surface = document.createElement("span");
   surface.className = "tooth-surface";
+
   ["q1","q2","q3","q4"].forEach(k => {
     const z = document.createElement("span");
     const m = item.marks[k];
     z.className = `zone ${k}`;
     if(m.marked){
-      z.classList.add(m.color === "#4d8dff" ? "section-blue" : m.color === "#ff5252" ? "section-red" : m.color === "#cross-red" ? "section-cross-red" : m.color === "#cross-blue" ? "section-cross-blue" : "section-combo");
+      z.classList.add(m.color === "#4d8dff" ? "section-blue" : m.color === "#ff5252" ? "section-red" : "section-combo");
     }
     z.onclick = e => {
       e.stopPropagation();
@@ -663,10 +705,6 @@ function makeNode(item, index){
       }else if(m.color === "#ff5252"){
         m.color = "#combo";
         item.circleColor = null;
-      }else if(m.color === "#combo"){
-        m.color = "#cross-red";
-      }else if(m.color === "#cross-red"){
-        m.color = "#cross-blue";
       }else{
         m.marked = false;
         m.color = "#f4f4f4";
@@ -675,6 +713,7 @@ function makeNode(item, index){
     };
     surface.appendChild(z);
   });
+
   const c = document.createElement("span");
   const cm = item.marks.center;
   c.className = "center";
@@ -706,7 +745,7 @@ function makeNode(item, index){
 
   const num = document.createElement("span");
   num.className = "num";
-  num.textContent = `#${String(item.id).padStart(2,"0")}`;
+  num.textContent = `${String(item.id).padStart(2,"0")}`;
   wrap.appendChild(b);
   wrap.insertBefore(num, b);
   b.addEventListener("click", e => {
@@ -781,9 +820,14 @@ function render(){
 
   $("counter").textContent = `${shown} de 32 piezas`;
 
-  // Renderizar campos extra
-  const radRadio = document.querySelector(`input[name="radiografia"][value="${appState.radiografia}"]`);
+  $("patientName").value = appState.patientName || "";
+  
+  const radRadio = document.querySelector(`input[name="derivacionRadiografica"][value="${appState.derivacionRadiografica}"]`);
   if(radRadio) radRadio.checked = true;
+
+  const turRadio = document.querySelector(`input[name="derivacionTurno"][value="${appState.derivacionTurno}"]`);
+  if(turRadio) turRadio.checked = true;
+
   $("generalDescription").value = appState.generalDescription || "";
 }
 
@@ -869,10 +913,21 @@ $("deleteDataBtn").onclick = () => {
 
 $("search").addEventListener("input", render);
 
-// Handlers para Radiografía y Descripción
-document.querySelectorAll('input[name="radiografia"]').forEach(radio => {
+$("patientName").addEventListener("input", e => {
+  appState.patientName = e.target.value;
+  saveStorage();
+});
+
+document.querySelectorAll('input[name="derivacionRadiografica"]').forEach(radio => {
   radio.addEventListener("change", e => {
-    appState.radiografia = e.target.value;
+    appState.derivacionRadiografica = e.target.value;
+    saveStorage();
+  });
+});
+
+document.querySelectorAll('input[name="derivacionTurno"]').forEach(radio => {
+  radio.addEventListener("change", e => {
+    appState.derivacionTurno = e.target.value;
     saveStorage();
   });
 });
@@ -883,7 +938,7 @@ $("generalDescription").addEventListener("input", e => {
 });
 
 $("resetBtn").onclick = () => {
-  if(confirm("Esto va a borrar la información del odontograma, radiografía y descripción. ¿Continuar?")){
+  if(confirm("Esto va a borrar la información del odontograma, paciente, derivaciones y descripción. ¿Continuar?")){
     appState = initialAppState();
     saveStorage(); render();
   }
@@ -944,7 +999,6 @@ render();
 .tooth-surface .center.section-red{background:#ff5252!important;border-color:#ff5252!important;}
 .tooth-surface .center.section-combo{background:#ff5252!important;border-color:#4d8dff!important;}
 
-/* 4.º Estado: Cruz / Líneas en rojo */
 .tooth-surface:has(.center.section-cross-red)::before,
 .tooth-surface:has(.center.section-cross-red)::after {
   background: #ff5252 !important;
@@ -954,11 +1008,7 @@ render();
   background: #050505 !important;
   border-color: #ff5252 !important;
 }
-.tooth-surface .zone.section-cross-red {
-  background: #ff5252 !important;
-}
 
-/* 5.º Estado: Cruz / Líneas en azul */
 .tooth-surface:has(.center.section-cross-blue)::before,
 .tooth-surface:has(.center.section-cross-blue)::after {
   background: #4d8dff !important;
@@ -967,9 +1017,6 @@ render();
 .tooth-surface .center.section-cross-blue {
   background: #050505 !important;
   border-color: #4d8dff !important;
-}
-.tooth-surface .zone.section-cross-blue {
-  background: #4d8dff !important;
 }
 </style>
 
