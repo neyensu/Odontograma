@@ -52,7 +52,6 @@ header{
 }
 .search {display: none;}
 
-
 .patient-input{
   width:280px;max-width:100%;padding:10px 12px;border-radius:10px;
   border:1px solid var(--line);background:#111115;color:white;outline:none;
@@ -425,7 +424,6 @@ input[type=color]{padding:3px;width:48px;height:38px}
   <div class="top">
     <div class="brand">
       <h1>ODONTOGRAMA</h1>
-      
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Exportar</button>
@@ -439,7 +437,6 @@ input[type=color]{padding:3px;width:48px;height:38px}
 <div class="controls">
   <input class="search" id="search" placeholder="Buscar pieza, nombre o información...">
   <input class="patient-input" id="patientName" placeholder="Nombre del paciente / Ficha...">
-
 </div>
 
 <main class="odontogram">
@@ -456,7 +453,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
 <div class="extra-section">
   <div class="radio-card">
     <div class="radio-group">
-      <label class="title-label">Derivación radiografica:</label>
+      <label class="title-label">Derivación radiográfica:</label>
       <div class="radio-options">
         <label><input type="radio" name="derivacionRadiografica" value="SI"> SÍ</label>
         <label><input type="radio" name="derivacionRadiografica" value="NO"> NO</label>
@@ -467,7 +464,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
     <span class="separator">|</span>
 
     <div class="radio-group">
-      <label class="title-label">Derivacion turno:</label>
+      <label class="title-label">Derivación turno:</label>
       <div class="radio-options">
         <label><input type="radio" name="derivacionTurno" value="SI"> SÍ</label>
         <label><input type="radio" name="derivacionTurno" value="NO"> NO</label>
@@ -559,7 +556,7 @@ input[type=color]{padding:3px;width:48px;height:38px}
 </div>
 
 <script>
-const STORAGE_KEY = "editor-48-circulos-diagonal-clean-v2";
+const STORAGE_KEY = "editor-odontograma-v3-fix";
 let appState = null;
 
 const FDI_TEETH=[
@@ -586,13 +583,35 @@ function initialAppState(){
 }
 
 function normalizeData(value){
-  if (!value || typeof value !== "object") return initialAppState();
-  
-  let teethRaw = Array.isArray(value) ? value : (Array.isArray(value.teeth) ? value.teeth : []);
-  let pName = typeof value.patientName === "string" ? value.patientName : "";
-  let radVal = typeof value.derivacionRadiografica === "string" ? value.derivacionRadiografica : (typeof value.radiografia === "string" ? value.radiografia : "");
-  let turVal = typeof value.derivacionTurno === "string" ? value.derivacionTurno : "";
-  let genDesc = typeof value.generalDescription === "string" ? value.generalDescription : "";
+  if (!value) return initialAppState();
+
+  let teethRaw = [];
+  if (Array.isArray(value)) {
+    teethRaw = value;
+  } else if (typeof value === "object" && value !== null) {
+    if (Array.isArray(value.teeth)) {
+      teethRaw = value.teeth;
+    }
+  }
+
+  // Búsqueda exhaustiva de cualquier clave para paciente y descripción
+  let pName = "";
+  if (typeof value.patientName === "string") pName = value.patientName;
+  else if (typeof value.patient_name === "string") pName = value.patient_name;
+  else if (typeof value.nombre === "string") pName = value.nombre;
+
+  let radVal = "";
+  if (typeof value.derivacionRadiografica === "string") radVal = value.derivacionRadiografica;
+  else if (typeof value.radiografia === "string") radVal = value.radiografia;
+
+  let turVal = "";
+  if (typeof value.derivacionTurno === "string") turVal = value.derivacionTurno;
+
+  let genDesc = "";
+  if (typeof value.generalDescription === "string") genDesc = value.generalDescription;
+  else if (typeof value.descripcion === "string") genDesc = value.descripcion;
+  else if (typeof value.general_description === "string") genDesc = value.general_description;
+  else if (typeof value.observaciones === "string") genDesc = value.observaciones;
 
   const map = new Map();
   teethRaw.forEach(x => { if(x && x.id!=null) map.set(Number(x.id), x); });
@@ -820,15 +839,25 @@ function render(){
 
   $("counter").textContent = `${shown} de 32 piezas`;
 
+  // Asignación explícita de valores en inputs
   $("patientName").value = appState.patientName || "";
-  
+  $("generalDescription").value = appState.generalDescription || "";
+
   const radRadio = document.querySelector(`input[name="derivacionRadiografica"][value="${appState.derivacionRadiografica}"]`);
-  if(radRadio) radRadio.checked = true;
+  if(radRadio) {
+    radRadio.checked = true;
+  } else {
+    const radDefault = document.querySelector(`input[name="derivacionRadiografica"][value=""]`);
+    if(radDefault) radDefault.checked = true;
+  }
 
   const turRadio = document.querySelector(`input[name="derivacionTurno"][value="${appState.derivacionTurno}"]`);
-  if(turRadio) turRadio.checked = true;
-
-  $("generalDescription").value = appState.generalDescription || "";
+  if(turRadio) {
+    turRadio.checked = true;
+  } else {
+    const turDefault = document.querySelector(`input[name="derivacionTurno"][value=""]`);
+    if(turDefault) turDefault.checked = true;
+  }
 }
 
 function openEditor(index){
@@ -913,9 +942,17 @@ $("deleteDataBtn").onclick = () => {
 
 $("search").addEventListener("input", render);
 
-$("patientName").addEventListener("input", e => {
-  appState.patientName = e.target.value;
-  saveStorage();
+// Registro de eventos para guardar estado en vivo
+["input", "change"].forEach(evt => {
+  $("patientName").addEventListener(evt, e => {
+    appState.patientName = e.target.value;
+    saveStorage();
+  });
+
+  $("generalDescription").addEventListener(evt, e => {
+    appState.generalDescription = e.target.value;
+    saveStorage();
+  });
 });
 
 document.querySelectorAll('input[name="derivacionRadiografica"]').forEach(radio => {
@@ -932,23 +969,26 @@ document.querySelectorAll('input[name="derivacionTurno"]').forEach(radio => {
   });
 });
 
-$("generalDescription").addEventListener("input", e => {
-  appState.generalDescription = e.target.value;
-  saveStorage();
-});
-
 $("resetBtn").onclick = () => {
   if(confirm("Esto va a borrar la información del odontograma, paciente, derivaciones y descripción. ¿Continuar?")){
     appState = initialAppState();
-    saveStorage(); render();
+    saveStorage(); 
+    render();
   }
 };
 
 $("exportBtn").onclick = () => {
+  // Asegurar lectura de inputs antes de empaquetar JSON
+  appState.patientName = $("patientName").value;
+  appState.generalDescription = $("generalDescription").value;
+  
+  const patientName = appState.patientName ? appState.patientName.trim().replace(/[/\\?%*:|"<>]/g, '') : "";
+  const fileName = patientName ? `${patientName} - odontograma.json` : "odontograma.json";
+
   const blob = new Blob([JSON.stringify(appState, null, 2)], {type: "application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "odontograma.json";
+  a.download = fileName;
   a.click();
   URL.revokeObjectURL(a.href);
 };
@@ -957,12 +997,20 @@ $("importBtn").onclick = () => $("fileInput").click();
 $("fileInput").onchange = async e => {
   const file = e.target.files[0]; if(!file) return;
   try {
-    const imported = JSON.parse(await file.text());
+    const rawText = await file.text();
+    const imported = JSON.parse(rawText);
     appState = normalizeData(imported);
-    saveStorage(); render();
+    
+    // Forzar actualización física del DOM inmediatamente tras importar
+    $("patientName").value = appState.patientName || "";
+    $("generalDescription").value = appState.generalDescription || "";
+    
+    saveStorage();
+    render();
     alert("Datos importados correctamente.");
-  } catch {
-    alert("El archivo no tiene un formato válido para esta página.");
+  } catch(err) {
+    console.error("Error importando:", err);
+    alert("El archivo no se pudo leer correctamente.");
   }
   e.target.value = "";
 };
